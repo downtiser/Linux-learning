@@ -1,0 +1,41 @@
+1 tar命令(压缩解压文件命令):
+tar命令用于对文件进行打包压缩或解压，格式为“tar [选项] [文件]”。
+在Linux系统中，常见的文件格式比较多，其中主要使用的是.tar或.tar.gz或.tar.bz2格式，我们不用担心格式太多而记不住，其实这些格式大部分都是由tar命令来生成的。
+tar命令参数:
+-c
+创建压缩文件
+-x
+解开压缩文件
+-t
+查看压缩包内有哪些文件
+-z
+用Gzip压缩或解压
+-j
+用bzip2压缩或解压
+-v
+显示压缩或解压的过程
+-f
+目标文件名
+-p
+保留原始的权限与属性
+-P
+使用绝对路径来压缩
+-C
+指定解压到的目录
+
+常用参数组合 压缩:-czvf 解压:-xzvf
+[root@localhost layer2]# tar -czvf my_first_archive.tar.gz layer3 压缩
+[root@localhost layer2]# tar -xzvf my_first_archive.tar.gz 解压
+
+grep命令用于在文本中执行关键词搜索，并显示匹配的结果，格式为“grep [选项] [文件]”。
+[root@localhost ~]# grep -vn /sbin/nologin /etc/passwd
+-b
+将可执行文件(binary)当作文本文件（text）来搜索
+-c
+仅显示找到的行数
+-i
+忽略大小写
+-n
+显示行号
+-v
+反向选择——仅列出没有“关键词”的行。
