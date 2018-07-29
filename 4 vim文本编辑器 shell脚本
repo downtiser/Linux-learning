@@ -7,6 +7,31 @@
 末行模式：保存或退出文档，以及设置编辑环境。
 
 可以分别使用a、i、o三个键从命令模式切换到输入模式。其中，a键与i键分别是在光标后面一位和光标当前位置切换到输入模式，而o键则是在光标的下面再创建一个空行.
+命令 	作用
+dd 	删除（剪切）光标所在整行
+5dd 	删除（剪切）从光标处开始的5行
+yy 	复制光标所在整行
+5yy 	复制从光标处开始的5行
+n 	显示搜索命令定位到的下一个字符串
+N 	显示搜索命令定位到的上一个字符串
+u 	撤销上一步的操作
+p 	将之前删除（dd）或复制（yy）过的数据粘贴到光标后面
+
+末行命令
+命令 	作用
+:w 	保存
+:q 	退出
+:q! 	强制退出（放弃对文档的修改内容）
+:wq! 	强制保存退出
+:set nu 	显示行号
+:set nonu 	不显示行号
+:命令 	执行该命令
+:整数 	跳转到该行
+:s/one/two 	将当前光标所在行的第一个one替换成two
+:s/one/two/g 	将当前光标所在行的所有one替换成two
+:%s/one/two/g 	将全文中的所有one替换成two
+?字符串 	在文本中从下至上搜索该字符串
+/字符串 	在文本中从上至下搜索该字符串
 
 2 shell脚本
 #!/bin/bash  #指明shell解释器
@@ -51,17 +76,85 @@ echo "Done!"
      -z  判断字符串内容是否为空
  
 流程控制语句:
-     if语句：
-     if 条件测试语句1
+    if 语句：
+    #!/bin/bash
+    #Exam program
+    read -p "please input your score>>>" SCORE #read 命令用于读取用户的输入并赋值给指定变量，-p参数用于在屏幕上输出指定信息
+    if [ $SCORE -gt 100 ]
         then
-            命令语句1
-     elif 条件测试语句2
+        echo "Invalid input!"
+    elif [ $SCORE -ge 85 ]
         then
-            命令语句2
-     else ....
+        echo "Excellent!"
+    elif [ $SCORE -ge 70 ]
         then
-        ....
-     fi
+        echo "Just so so!"
+    else 
+        echo "Ops!"
+    fi
+    
+    
+    for循环:
+        #!/bin/bash
+        #create user info
+        for NAME in `cat user.txt`   #从列表文件中逐行读取信息
+        do
+            read -p "please input the password of $NAME>>>" PASSWD
+            if [ $NAME = "downtiser" ]
+            then echo "Ha, the user $NAME is the root user!"
+            else
+            echo "UID:$NAME PASSWORD:$PASSWD" >> user_info.txt
+            fi
+        done
+        echo "Done!"
+
+    
+    while循环:
+        #!/bin/bush
+        #guess num program
+        PRICE=$(expr $RANDOM % 1000) #expr 提取算式值
+        COUNT=0
+        while true #while 后面跟测试语句，也可以加上true使循环一直进行直到循环体内有退出exit命令
+        do 
+            read -p "Please input the number you guess(0-999)>>>" GUESS
+            if [ $COUNT -gt 10 ]
+            then 
+                echo "Ops! You have tried too many times! you idiot!"
+                exit 0
+            elif [ $GUESS -lt $PRICE ]
+            then
+               let COUNT++
+               echo "Too small! $COUNT chances used"
+            elif [ $GUESS -gt $PRICE ]
+            then
+               let COUNT++
+               echo "Too large! $COUNT chances used"
+            else 
+            let COUNT++
+            echo "Good job! You got it! you have tried [$COUNT] times"
+            exit 0
+            fi
+        done
+        echo "Done"
+        
+    case条件测试语句：
+        #!/bin/bash
+        #check key program
+        read -p "please input the key>>>" KEY
+        case $KEY in  #传递变量值
+        [a-z]|[A-Z])  #判断值是否符合该模式
+        echo "The key is an alphabet"
+        ;;
+        [0-9])
+        echo "The key is an number"
+        ;;
+        *)  #若以上模式都未成功匹配，则执行该模式下的语句
+        echo "The key is not an alphanum"
+        esac  #结束符
+
+
+   
+
      
      
        
