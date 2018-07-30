@@ -130,14 +130,13 @@ echo "Done!"
                let COUNT++
                echo "Too large! $COUNT chances used"
             else 
-            let COUNT++
-            echo "Good job! You got it! you have tried [$COUNT] times"
+            let COUNT++   echo "Good job! You got it! you have tried [$COUNT] times"
             exit 0
             fi
         done
         echo "Done"
         
-at    case条件测试语句：
+    case条件测试语句：
         #!/bin/bash
         #check key program
         read -p "please input the key>>>" KEY
@@ -151,7 +150,7 @@ at    case条件测试语句：
         *)  #若以上模式都未成功匹配，则执行该模式下的语句
         echo "The key is not an alphanum"
         esac  #结束符
-*
+
 
 计划服务程序：
     一次性计划任务
@@ -171,7 +170,7 @@ at    case条件测试语句：
     atrm 计划编号
     
     
-    长期计划任务：
+    长期计划任务：crond服务
     crontab命令：使系统能够有规律的，周期性的执行某项任务
     命令格式：
     编辑计划任务命令：
