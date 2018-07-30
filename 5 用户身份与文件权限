@@ -195,7 +195,7 @@ userdel命令：
      visudo命令:配置用户权限
      格式 visudo
      在第99行以如下格式写上   谁可以使用  允许使用的主机=（以谁的身份）  可执行命令的列表
-     downtiser    ALL=(root)     /usr/bin/cat  #root可以改成ALL， 命令一定要使用绝对路径，若root改为NOPASSWD则在sudo时就不必再输入密码
+     downtiser    ALL=(root)     /usr/bin/cat,/usr/bin/cd  #root可以改成ALL， 命令一定要使用绝对路径，若root改为NOPASSWD则在sudo时就不必再输入密码
      
 
      
