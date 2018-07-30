@@ -137,7 +137,7 @@ echo "Done!"
         done
         echo "Done"
         
-    case条件测试语句：
+at    case条件测试语句：
         #!/bin/bash
         #check key program
         read -p "please input the key>>>" KEY
@@ -155,7 +155,7 @@ echo "Done!"
 
 计划服务程序：
     一次性计划任务
-    at命令：为系统在在指定时间安排一个一次性任务
+    at命令：为系统在在指定时间安排一个一次性任务 at -c 计划编号 查看计划
     命令格式
     [root@localhost layer3]# at 17:30
     at> systemctl restart httpd
