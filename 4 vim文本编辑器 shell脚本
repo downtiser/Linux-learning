@@ -153,7 +153,27 @@ echo "Done!"
         esac  #结束符
 
 
-   
+计划服务程序：
+    一次性计划任务
+    at命令：为系统在在指定时间安排一个一次性任务
+    命令格式
+    [root@localhost layer3]# at 17:30
+    at> systemctl restart httpd
+    at> <EOT>
+    job 3 at Mon Jul 30 17:30:00 2018
+    [root@localhost layer3]# at -l
+    3	Mon Jul 30 17:30:00 2018 a root
+    
+    或者利用管道符：echo "systemctl restart httpd" | at 17:30
+    
+    atrm: 移除一个指定的计划
+    命令格式：
+    atrm 计划编号
+    
+    
+    长期计划任务：
+    crontab命令：使系统能够有规律的，周期性的执行某项任务
+    
 
      
      
