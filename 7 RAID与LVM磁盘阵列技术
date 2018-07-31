@@ -25,7 +25,7 @@
       -Q 	查看摘要信息
       -D 	查看详细信息
       -S 	停止RAID磁盘阵列
-      
+      -x    添加热备盘
       1[root@localhost Desktop]# madadm -Cv /dev/md0 -n 4 -l 10 /dev/sdb /dev/sdc /dev/sdd /dev/sde
       -C参数代表创建一个RAID阵列卡；-v参数显示创建的过程，同时在后面追加一个设备名称/dev/md0，这样/dev/md0就是创建后的RAID磁盘阵列的名称；-a yes
       参数代表自动创建设备文件；-n 4参数代表使用4块硬盘来部署这个RAID磁盘阵列；而-l 10参数则代表RAID 10方案；最后再加上4块硬盘设备的名称
@@ -45,7 +45,54 @@
       5 将挂载信息写入/etc/fstab配置文件中
       
    2 损坏磁盘阵列及修复
+      当某一块硬盘损坏后，使用mdadm命令移除该盘 mdadm /dev/md0 -f /dev/sdb
+      再用该命令添加新的盘 使用-a参数
+      
+   3磁盘阵列+备份盘
+   RAID5+热备盘
+   先往系统中添加3块新磁盘+一块热备盘
+   1 用mdadm 命令添加RAID5磁盘阵列加上一块热备盘 
+   [root@localhost Desktop]# mdadm -Cv /dev/md0 -n 3 -x 1 -l 5 /dev/sd[b-d] /dev/sde
+   等待其初始化完成
+   2 格式化
+   3 挂载
+   5 写入配置文件
+   
+   现实中如何处理故障：
+   1 通过指示灯找出故障硬盘，然后换上新的硬盘
+   2 用mdadm命令移除故障盘 mdadm 磁盘阵列 -r 损坏磁盘  [root@localhost Desktop]# mdadm /dev/md0 -r /dev/sde
+   3 mdadm添加新硬盘 mdadm -a 磁盘阵列 新磁盘  [root@localhost Desktop]# mdadm -a /dev/md0 /dev/sde
+   
+   
+   
+2 LVM 逻辑卷管理器
+ LVM可以允许用户对硬盘资源进行动态调整,动态调整磁盘容量
+ 物理卷[PV，Physical Volume] 卷组[VG，Volume Group] 逻辑卷[LV，Logical Volume] 基本单元[PE，Physical Extent]大小为4M,
+ 逻辑卷的大小必须是基本单元的倍数
+  LVM部署命令：
+  功能/命令 	物理卷管理 	卷组管理 	逻辑卷管理
+      扫描 	pvscan 	    vgscan 	   lvscan
+      建立 	pvcreate 	 vgcreate 	lvcreate 切割卷组
+      显示 	pvdisplay 	 vgdisplay 	lvdisplay
+      删除 	pvremove 	 vgremove 	lvremove
+      扩展 		       vgextend(添加新设备) 	lvextend
+      缩小 		      vgreduce(移除旧设备) 	lvreduce
+ 
+ 1 PV(让硬盘支持LVM技术)
+   pvcreate命令：使指定磁盘支持LVM技术
+   
+ 
+ 
+ 2 VG(将磁盘组成一个大的卷组)
+ 
+ 3 LV(对卷组进行切片)
+  方法一：指定容量大小
+  方法二：指定PE个数
+  
+ 
 
+   
+   
       
    
    
