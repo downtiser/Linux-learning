@@ -153,6 +153,30 @@ Linux系统开机时不会使用到的软件/命令/脚本
 
   软链接（也称为符号链接[symbolic link]）：仅仅包含所链接文件的路径名，因此能链接目录文件，也可以跨越文件系统进行链接。但是，当原始文件被删除后，链接文件也将失效，从这一点上来说与Windows系统中的“快捷方式”具有一样的性质。
   
+  ln命令：用于创建链接文件
+  格式 ln 参数 源文件 链接文件
+  参数 	作用
+    -s 	创建“符号链接”（如果不带-s参数，则默认创建硬链接）
+    -f 	强制创建文件或目录的链接
+    -i 	覆盖前先询问
+    -v 	显示创建链接的过程
+    
+    创建软链接：
+    [root@localhost layer3]# ln -s example.txt SoftNode.txt
+    [root@localhost layer3]# ls -l SoftNode.txt 
+    lrwxrwxrwx. 1 root root 11 Jul 31 12:30 SoftNode.txt -> example.txt 权限字段后的1代表源文件的磁盘链接数
+    
+    创建硬链接：
+    [root@localhost layer3]# ln example.txt HardNode.txt
+    [root@localhost layer3]# ls -l example.txt 
+    -rw-r--r--. 2 root root 20 Jul 31 12:33 example.txt  源文件磁盘链接数变为了2
+    此时即使删除源文件也可以通过该链接访问源文件内容
+    
+
+    
+
+    
+  
    
     
     
