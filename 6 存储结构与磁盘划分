@@ -88,7 +88,7 @@ Linux系统开机时不会使用到的软件/命令/脚本
     权限选项 	若设置为defaults，则默认权限为：rw, suid, dev, exec, auto, nouser, async
     是否备份 	若为1则开机后使用dump进行磁盘备份，为0则不备份
     是否自检 	若为1则开机后自动进行磁盘自检，为0则不自检
-    /dev/sdb1 /newFS xfs defaults 0(是否开机自检) 0(自检优先级)
+    /dev/sdb1 /newFS xfs defaults 0 0
     2 umount命令用于撤销已经挂载的设备文件，格式为“umount [挂载点/设备文件]”。
     卸载操作只需要说明想要取消关联的设备文件或挂载目录的其中一项即可
     
