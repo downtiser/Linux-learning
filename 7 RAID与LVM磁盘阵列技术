@@ -15,7 +15,7 @@
       mdadm命令：用于管理Linux系统中的软件RAID硬盘阵列
       格式为：mdadm 模式 RAID设备名称 选项 成员设备名称
       参数 	作用
-      -a 	检测设备名称
+      -a 	自动创建设备
       -n 	指定设备数量
       -l 	指定RAID级别
       -C 	创建
@@ -26,14 +26,25 @@
       -D 	查看详细信息
       -S 	停止RAID磁盘阵列
       
-      1[root@localhost Desktop]# madadm -Cv /dev/md0 -a yes -n 4 -l 10 /dev/sdb /dev/sdc /dev/sdd /dev/sde
+      1[root@localhost Desktop]# madadm -Cv /dev/md0 -n 4 -l 10 /dev/sdb /dev/sdc /dev/sdd /dev/sde
       -C参数代表创建一个RAID阵列卡；-v参数显示创建的过程，同时在后面追加一个设备名称/dev/md0，这样/dev/md0就是创建后的RAID磁盘阵列的名称；-a yes
       参数代表自动创建设备文件；-n 4参数代表使用4块硬盘来部署这个RAID磁盘阵列；而-l 10参数则代表RAID 10方案；最后再加上4块硬盘设备的名称
       
-      2格式化磁盘阵列
-      [root@localhost Desktop]# mkfs.xfs /dev/md0
+      mdadm -D /dev/md127 查看阵列详细信息
+      等待其初始化，通过-D可以查看进度
       
-      3 挂载磁盘阵列
+      2 对阵列进行分区:(如果磁盘容量较小可以不做)
+      [root@localhost Desktop]# fdisk /dev/md0
+      磁盘阵列的分区编号格式为 /dev/md0p编号  /dev/md0p1
+      3格式化磁盘阵列分区
+      [root@localhost Desktop]# mkfs.xfs /dev/md0p1
+      
+      4 挂载磁盘阵列
+      [root@localhost ~]# mount /dev/md0p1 /media/RAID_P1
+      
+      5 将挂载信息写入/etc/fstab配置文件中
+      
+   2 损坏磁盘阵列及修复
 
       
    
