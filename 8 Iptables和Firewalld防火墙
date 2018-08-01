@@ -1,0 +1,178 @@
+1 网卡配置四种方法
+  1:修改网卡配置文件
+  静态方式:static 动态方式：DHCP  ONBOOT=yes 开机后启用网卡参数
+  将虚拟机设置为仅主机模式，对应真机上vmnet1这块网卡
+  [root@localhost Desktop]# vim /etc/sysconfig/network-scripts/ifcfg-eno16777728 
+  TYPE=Ethernet
+  BOOTPROTO=static
+  DEFROUTE=yes
+  PEERDNS=yes
+  PEERROUTES=yes
+  IPV4_FAILURE_FATAL=no
+  IPV6INIT=yes
+  IPV6_AUTOCONF=yes
+  IPV6_DEFROUTE=yes
+  IPV6_PEERDNS=yes
+  IPV6_PEERROUTES=yes
+  IPV6_FAILURE_FATAL=no
+  NAME=eno16777728
+  UUID=0625d96b-3784-41be-a9e8-8a21c34e531d
+  ONBOOT=yes
+  HWADDR=00:0C:29:45:1E:FB
+  IPADDR0=192.168.10.20
+  PREFIX0=24
+  IPV6_PEERDNS=yes
+  IPV6_PEEROUTES=yes
+  
+  想要让服务程序获取最新的配置，需要重启相应的服务以获取最新的配置文件
+
+  
+  
+  2：nmtui命令
+  第一个选项配置
+  第二个选项激活
+  
+  3:图形化界面工具:nm-connection-editor
+  
+  4 通过电脑图标配置网卡
+
+
+
+Iptables和Firewalld都是防火墙管理工具，它们的区别在于Iptables会把配置好的防火墙策略交给内核的netfliter网络过滤器来处理，Firewalld将其交给
+内核的nftables包过滤框架处理
+1 Iptables
+   1 策略与规则链
+      策略
+      防火墙自上而下检索防火墙配置文件，当检测到某一项配置能够和目标匹配之后，就结束检索，去执行匹配项中定义的策略(放行或阻止)，如果都没有匹配上的话，就会执行默认策略(放行或阻止)
+      规则链
+      iptables服务把用于处理或过滤流量的策略条目称之为规则，多个规则可组成规则链
+      
+      规则链有以下几类:
+      在进行路由选择前处理数据包（PREROUTING）；
+      处理流入的数据包（INPUT）；
+      处理流出的数据包（OUTPUT）；
+      处理转发的数据包（FORWARD）；
+      在进行路由选择后处理数据包（POSTROUTING）
+      
+      iptables对匹配的流量采取以下动作：
+      ACCEPT 允许流量通过
+      REJECT 拒绝流量通过，但会通知发送方（考试时采用）
+      LOG 记录日志信息
+      DROP 拒绝流量通过，丢包，不通知发送方
+      
+      Iptables命令参数:
+      参数 	         作用
+      -P 	         设置默认策略
+      -F 	         清空规则链
+      -L 	         查看规则链
+      -A 	         在规则链的末尾加入新规则
+      -I num 	     在规则链的头部加入新规则
+      -D num 	     删除某一条规则
+      -s 	          匹配来源地址IP/MASK，加叹号“!”表示除这个IP外
+      -d 	          匹配目标地址
+      -i 网卡名称 	匹配从这块网卡流入的数据
+      -o 网卡名称 	匹配从这块网卡流出的数据
+      -p 	匹配协议， 如TCP、UDP、ICMP
+      -j            动作       
+      --dport num 	匹配目标端口号  22:1000 表示22至10000
+      --sport num 	匹配来源端口号
+      -I   策略     默认插入到规则链的最前面 (策略跟上数字则表示插入到第几条)
+      -A           插入到规则链的最后面
+      
+      
+      1 设置策略
+       [root@localhost Desktop]# iptables -I INPUT -p icmp -j ACCEPT
+      2 设置默认策略  默认拒绝策略只能是DROP而不能是REJECT
+        [root@localhost Desktop]# iptables -P INPUT DROP
+      3 设置ssh服务放行策略  相关服务端口号在/etc/sevices 中可以查询到
+        [root@localhost Desktop]# iptables -I INPUT -p tcp --dport 22 -j ACCEPT
+      4 只拒绝某个地址，或拒绝某个地址段
+         指定删除某项策略 iptables -D INPUT 2
+         [root@localhost Desktop]# iptables -I INPUT -s 192.168.10.1/24 -p tcp --dport 22 -j REJECT 禁止某个网段
+         [root@localhost Desktop]# iptables -I INPUT -s !192.168.10.1/24 -p tcp --dport 22 -j REJECT 加上 ! 表示除这个地址以外
+         
+      5 保存设置 service iptables save
+ 2 firewalld
+   常用区域名称及策略规则
+   区域 	默认规则策略
+    *trusted 	允许所有的数据包
+    home 	     拒绝流入的流量，除非与流出的流量相关；而如果流量与ssh、mdns、ipp-client、amba-client与dhcpv6-client服务相关，则允许流量
+    internal 	 等同于home区域
+    work 	     拒绝流入的流量，除非与流出的流量数相关；而如果流量与ssh、ipp-client与dhcpv6-client服务相关，则允许流量
+    *public 	   拒绝流入的流量，除非与流出的流量相关；而如果流量与ssh、dhcpv6-client服务相关，则允许流量
+    external 	 拒绝流入的流量，除非与流出的流量相关；而如果流量与ssh服务相关，则允许流量
+    dmz 	     拒绝流入的流量，除非与流出的流量相关；而如果流量与ssh服务相关，则允许流量
+    block 	   拒绝流入的流量，除非与流出的流量相关
+    *drop 	     拒绝流入的流量，除非与流出的流量相关
+    
+    1 firewall-cmd firewall命令行模式 参数都采用长格式
+    参数 	                                 作用
+--get-default-zone 	              查询默认的区域名称
+--set-default-zone=<区域名称> 	    设置默认的区域，使其永久生效
+--get-zones 	                    显示可用的区域
+--get-services 	                显示预先定义的服务
+--get-active-zones 	            显示当前正在使用的区域与网卡名称
+--add-source= 	                将源自此IP或子网的流量导向指定的区域
+--remove-source= 	            不再将源自此IP或子网的流量导向某个指定区域
+--add-interface=<网卡名称> 	      将源自该网卡的所有流量都导向某个指定区域
+--change-interface=<网卡名称> 	      将某个网卡与区域进行关联
+--list-all 	                      显示当前区域的网卡配置参数、资源、端口以及服务等信息
+--list-all-zones 	               显示所有区域的网卡配置参数、资源、端口以及服务等信息
+--add-service=<服务名> 	           设置默认区域允许该服务的流量
+--add-port=<端口号/协议> 	        设置默认区域允许该端口的流量
+--remove-service=<服务名> 	         设置默认区域不再允许该服务的流量
+--remove-port=<端口号/协议>      	设置默认区域不再允许该端口的流量
+--reload 	                        让“永久生效”的配置规则立即生效，并覆盖当前的配置规则
+--panic-on 	开启应急状况模式
+--panic-off 	关闭应急状况模式
+
+     firewalld 两个保存防火墙状态的位置 runtime(修改后立即生效，重启后失效)  permanant(当前不会立即生效,重启后永久生效,或firewall-cmd --reload)      
+     1 获取当前所在区域
+      [root@localhost Desktop]# firewall-cmd --get-default-zone
+      
+     2 获取当前网卡所在区域
+      [root@localhost Desktop]# firewall-cmd --get-zone-of-interface=eno16777728
+      
+     3 永久修改当前网卡所在区域
+     [root@localhost Desktop]# firewall-cmd --permanent --zone=dmz --change-interface=eno16777728
+     [root@localhost Desktop]# firewall-cmd --permanent --get-zone-of-interface=eno16777728 
+     
+     4 设置默认的区域
+     [root@localhost Desktop]# firewall-cmd --set-default-zone=work
+     
+     5 检查某个区域是否放行某项服务或端口号,并添加服务
+     --query-service=服务名称
+     --query-port=端口号/协议(tcp udp)
+     [root@localhost Desktop]# firewall-cmd --zone=public --query-service=http
+     [root@localhost Desktop]# [root@localhost Desktop]# firewall-cmd --zone=public --add-service=http
+     
+     [root@localhost Desktop]# firewall-cmd --permanent --zone=public  --add-service=http  加入到永久生效表中
+     
+     6 端口转发
+     --add-forward-port=
+     [root@localhost Desktop]# firewall-cmd --zone=public --add-forward-port=port=6080:proto=tcp:toport=22:toaddr=192.168.10.10
+
+
+     7 禁止某一个网段或地址
+     富规则：具有针对性的一种防火墙策略的设置方法
+     firewall-cmd --permanant --zone=public --add-rich-rule="rule family="ipv4" source address="192.168.10.0/24" service name="ssh" reject"
+     
+     
+
+
+3 tcp_wrappers
+1 /etc/hosts.allow 匹配允许  /etc/hosts.deny 匹配拒绝  先匹配允许文件，再匹配拒绝文件，默认匹配允许
+修改禁止配置文件 vim /etc/hosts.deny  sshd:192.168.10.0/24  禁止的服务的网段
+修改允许配置文件 vim /etc/hosts.allow  sshd:192.168.10.1 准许的服务的主机
+此时又可以使用ssh服务了
+
+
+     
+
+
+      
+      
+      
+      
+      
+  
