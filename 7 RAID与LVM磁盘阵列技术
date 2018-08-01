@@ -80,19 +80,60 @@
  
  1 PV(让硬盘支持LVM技术)
    pvcreate命令：使指定磁盘支持LVM技术
-   
+   pvcreate /dev/sdb /dev/sdc
  
  
  2 VG(将磁盘组成一个大的卷组)
- 
+  vgcreate /dev/sdb /dev/sdc
  3 LV(对卷组进行切片)
-  方法一：指定容量大小
-  方法二：指定PE个数
+  方法一：指定容量大小 -L
+  方法二：指定PE个数 -l
+  lvcreate -n vo -l 100 storage
   
- 
+ 4格式化逻辑卷 (不能使用xfs格式，xfs不支持lvm)
+  mkfs.ext4 /dev/storage/vo
+  
+ 5挂载 并写入配置文件中
+ mount /dev/storage/vo /media/newLV
 
+3扩容逻辑卷
+扩容前一定要卸载逻辑卷,并退出挂载目录
+
+1卸载逻辑卷
+umount /dev/storage/vo
+
+2扩容逻辑卷  参数中的大小指的是扩展后的大小,如果不能被4整除，则会向上多取一个PE
+lvextend -L 800M /dev/storage/vo
+
+3检查文件系统数据完整性
+e2fsck -f /dev/storage/vo
+
+4通知文件系统逻辑卷容量发生变化
+resize2fs /dev/storage/vo
+
+5 重新挂载
+mount -a  因为已经写入配置文件中的最后一行，可以直接加上-a参数挂载
+  
+4 缩小逻辑卷
+  1卸载逻辑卷
+  umount /dev/storage/vo
+  
+  2 e2fsck 检查数据完整性
+  e2fsck -f /dev/storage/vo
+  
+  3 resize2fs 通知文件系统逻辑卷要变成的大小,检查是否有条件缩小
+  resize2fs /dev/storage/vo 300M
+  
+  4 lvreduce 缩小逻辑卷
+  lvreduce -L 300M /dev/storage/vo
+  
+  5挂载 mount -a
+ 
+5 生成快照卷 可用于还原指定逻辑卷，其实是做一次完整备份
+    快照卷的容量必须等同于逻辑卷的容量；快照卷仅一次有效，一旦执行还原操作后则会被立即自动删除。
+    
+    
+    
    
-   
-      
    
    
