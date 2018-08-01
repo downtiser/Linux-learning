@@ -132,6 +132,34 @@ mount -a  因为已经写入配置文件中的最后一行，可以直接加上-
 5 生成快照卷 可用于还原指定逻辑卷，其实是做一次完整备份
     快照卷的容量必须等同于逻辑卷的容量；快照卷仅一次有效，一旦执行还原操作后则会被立即自动删除。
     
+    1 lvcreate制作快照卷
+     [root@localhost ~]# lvcreate -L 300M -s -n SNAP /dev/storage/vo
+      -s即指明创建快卷照，-n后面跟快照卷名称 最后跟要拍摄快照的逻辑卷
+      
+   2 使用快照卷恢复数据
+     1 卸载逻辑卷
+     umount /media/newLV
+     
+     2 lvconvert 合并数据
+     lvconvert --merge /dev/storage/SNAP  不用写要恢复的逻辑卷，只要写快照卷
+     
+     3重新挂载原逻辑卷
+     mount -a
+     
+     
+6 卸载删除LVM
+   1 删除配置文件fstab中的信息
+   
+   2 卸载逻辑卷 umount
+   
+   3 移除逻辑卷
+    [root@localhost ~]# lvremove /dev/storage/vo
+   4 移除卷组
+    [root@localhost ~]# vgremove /dev/storage
+   5 移除物理卷
+    [root@localhost ~]# pvremove /dev/sd[b-c]
+
+    
     
     
    
