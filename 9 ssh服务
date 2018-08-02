@@ -59,10 +59,56 @@
   SSH服务：
      配置文件：
       主配置文件：保存服务程序最主要参数的文件，一般在/etc/服务名称/服务名称.conf  普通配置文件：主配置文件调用的一些普通配置文件
-     1 修改/etc/ssh/sshd_conf服务配置文件
+     1 修改/etc/ssh/sshd_config服务配置文件
+       48 PermitRootLogin no 可禁止以管理员身份使用ssh服务
        
+     秘钥验证：
+     公钥验证解密 私钥加密
+     客户端生成秘钥发送给服务器端
+     
+     生成秘钥:ssh-keygen
+        将秘钥发送给服务器端 ssh-copy-id 192.168.10.10
        
+       直接连接即可 ssh 192.168.10.10
+       
+      scp命令：基于ssh服务的文件传输服务
+      上传文件
+       scp -r(如果是目录的话要加) 文件名 192.168.10.10(服务器地址):/root(选择要传输到服务器的哪个目录)
       
+       下载文件
+       scp 192.168.10.10:/root/readme.txt /root  后面指定要下载的文件，最后加上要保存的目录
        
+       
+     screen服务:不间断会话程序
+       1 先配置yum仓库
+         创建挂载目录 挂载光盘
+         
+       2 vim /etc/yum.repos.d/rhel.repo
+       yum仓库的格式:
+       [MyYum] yum仓库名称
+       name=随意
+       baseurl=file:///media/cdrom    提供yum仓库来源地址
+       enabled=1
+       gpgcheck=0  不进行校验
+       保存即可
+       
+       yum install screen 安装screen软件包
+       
+       screen命令：
+       用-S参数创建会话窗口；用-d参数将指定会话进行离线处理；用-r参数恢复指定会话；用-x参数一次性恢复所有的会话；用-ls参数显示当前已有的会话；以及用-wipe参数把目前无法使用的会话删除
+       
+       1 创建会话：
+       screen -S conv1
+       screen vim readme.txt 也可以不添加会话，直接跟命令
+       2查看会话
+       screen -ls
+       	3896.conv1	(Detached)  表示被中断的会话及其编号
+       3 恢复会话
+         screen -r 3896   (恢复指定会话)
+       
+       
+       
+       screen共享会话：
+       screen -x 指定会话
       
          
