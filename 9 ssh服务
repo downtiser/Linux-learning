@@ -1,0 +1,68 @@
+1将虚拟机网络配置设置为桥接模式，并保证虚拟机网络配置与真机一致
+
+
+
+创建网络会话
+    1 在虚拟机网络编辑器中启用DHCP服务
+    
+    2 nmcli命令 查看网络信息或网络状态，创建针对不同区域的网络会话
+       1 查看网卡信息：
+         nmclli connection show
+         
+       2 创建会话名称
+         手动指定ip地址
+         [root@localhost Desktop]# nmcli connection add con-name company ifname eno16777728 autoconnect no type ethernet ip4 192.168.10.68/24 gw4 192.168.10.1           ifname 指定网卡名称 autoconnect指定该会话是否会自动激活  type 指定网络类型 ip4和gw指定ip地址和网关
+         
+         自动获取ip地址
+         [root@localhost Desktop]# nmcli connection add con-name home ifname eno16777728 type ethernet
+      
+      3 启用某个会话
+        nmcli connection up home
+        
+       
+ 网卡绑定技术
+      将两块网卡合并成一块网卡
+      1 往虚拟机中再添加一块网卡
+      
+      2 分别修改两块网卡配置文件（新的网卡需新建），改为合并网卡的信息，此时两块网卡都不应该有自己的IP地址
+      TYPE=Ethernet
+      BOOTPROTO=none  设置启动方式为默认
+      ONBOOT=yes   
+      USERCTL=no  #禁止用户通过命令行来修改网卡配置信息
+      DEVICE=eno.....
+      MASTER=bond0  合并网卡名
+      SLAVE=yes 定义为从属网卡
+      
+      3 创建绑定网卡bond0的配置文件
+       TYPE=Ethernet
+       BOOTPROTO=none
+       ONBOOT=yes
+       USECTL=no
+       DEVICE=bond0
+       IPADDR=192.168.10.10
+       PREFIX=24
+       DNS=192.168.10.1
+       NM_CONTROLED=no  禁用NetWorkManager服务，避免冲突
+      
+      3 创建编辑 /etc/modprobe.d/bond.conf  让内核支持绑定技术
+      mode0（平衡负载模式）：平时两块网卡均工作，且自动备援，但需要在与服务器本地网卡相连的交换机设备上进行端口聚合来支持绑定技术。
+
+      mode1（自动备援模式）：平时只有一块网卡工作，在它故障后自动替换为另外的网卡。
+
+      mode6（平衡负载模式）：平时两块网卡均工作，且自动备援，无须交换机设备提供辅助支持 
+       
+       vim /etc/modprobe.d/bond.conf 
+       alias bond0 bonding
+       options bond0 miimon=100 mode=6    millmon指定网卡切换间隔，单位为毫秒 mode为模式
+       
+       
+  SSH服务：
+     配置文件：
+      主配置文件：保存服务程序最主要参数的文件，一般在/etc/服务名称/服务名称.conf  普通配置文件：主配置文件调用的一些普通配置文件
+     1 修改/etc/ssh/sshd_conf服务配置文件
+       
+       
+      
+       
+      
+         
