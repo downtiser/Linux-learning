@@ -1,0 +1,99 @@
+web服务：
+我们平时访问的网站服务就是Web网络服务，一般是指允许用户通过浏览器访问到互联网中各种资源的服务。而Apache就是一款提供web服务的程序
+
+Apache 安装
+   编辑好本地yum仓库的配置文件
+   yum install httpd
+   systemctl start httpd
+   systemctl enable httpd  开机自启动
+   
+配置Apache配置文件:
+    服务目录 	/etc/httpd
+    主配置文件 	/etc/httpd/conf/httpd.conf
+    网站数据目录 	/var/www/html
+    访问日志 	/var/log/httpd/access_log
+    错误日志 	/var/log/httpd/error_log
+    
+    主配置文件中常用参数:
+    ServerRoot 	服务目录
+    ServerAdmin 	管理员邮箱
+    User 	运行服务的用户
+    Group 	运行服务的用户组
+    ServerName 	网站服务器的域名
+    DocumentRoot 	网站数据目录
+    Listen 	监听的IP地址与端口号
+    DirectoryIndex 	默认的索引页页面
+    ErrorLog 	错误日志文件
+    CustomLog 	访问日志文件
+    Timeout 	网页超时时间，默认为300秒
+    在httpd服务程序的主配置文件中，存在三种类型的信息：注释行信息、全局配置、区域配置
+    例
+    # If the AddEncoding directives above are commented-out, then you
+    # probably should define those extensions to indicate media types: 注释行信息
+    #
+    AddType application/x-compress .Z     全局配置
+    AddType application/x-gzip .gz .tgz
+    <IfModule mime_magic_module>  #区域配置
+    #
+    # The mod_mime_magic module allows the server to use various hints from the
+    # contents of the file itself to determine its type.  The MIMEMagicFile
+    # directive tells the module where the hint definitions are located.
+    #
+    MIMEMagicFile conf/magic
+    </IfModule>
+    
+    从主配置文件中的全局配置  DocumentRoot "/var/www/html" 可以得知网站数据存储在/var/www/html/下
+    1 通过修改html下的index.html文件可以修改网站主页内容
+    vim /var/www/html/index.html
+    welcome to Downtiser's web!
+    
+SELinux:
+   1当我们修改httpd服务的主配置文件中的DocumentRoot为自定义目录/home/wwwhtml，并编辑主页文件index.html重启服务再进入主页时，发现
+   并没有出现预先修改的内容，再进一步想进入127.0.0.1/index.html时出现了Forbidden字样同时系统收到了一封来自SElinux的警告，大意是这次访问
+   被禁止.
+   SELinux（Security-Enhanced Linux）是美国国家安全局在Linux开源社区的帮助下开发的一个强制访问控制（MAC，Mandatory Access Control）的安全子系统。RHEL 7系统使用SELinux技术的目的是为了让各个服务进程都受到约束，使其仅获取到本应获取的资源。
+   SELinux有三种配置模式:
+       enforcing：强制启用安全策略模式，将拦截服务的不合法请求。
+       permissive：遇到服务越权访问时，只发出警告而不强制拦截。
+       disabled：对于越权的行为不警告也不拦截。
+       在/etc/selinux/config配置文件中可以查看修改当前系统使用的selinux的模式
+       
+       getenfore命令：查看当前selinux采用的模式
+       
+       setenforce命令：设置selinux的运行模式，1位启用服务，2为禁用，修改只在当前有效
+       setenforce 0
+       之后再刷新页面就可以正常访问了
+       
+       SELinux 安全上下文
+       用ls -Zd 命令分别查看原https数据目录/var/www/html 和自定义目录/home/wwwhtml的安全上下文
+       原目录  drwxr-xr-x. root root system_u:object_r:httpd_sys_content_t:s0 /var/www/html
+       自定义目录 drwxr-xr-x. root root unconfined_u:object_r:home_root_t:s0 /home/wwwhtml
+       在文件上设置的SELinux安全上下文是由用户段、角色段以及类型段等多个信息项共同组成的。其中，用户段system_u代表系统进程的身份，
+       角色段object_r代表文件目录的角色，类型段httpd_sys_content_t代表网站服务的系统文件。
+       可见自定义目录并没有获取httpd服务的类型段安全上下文
+       使用semanage命令管理目录安全上下文使得httpd服务可以被SELinux准许访问自定义目录
+       semanage命令：用于管理SELinux的策略
+       格式：semanage 参数 文件
+            -l参数用于查询；
+
+            -a参数用于添加；
+
+            -m参数用于修改；
+
+            -d参数用于删除。
+            [root@localhost ~]# semanage fcontext -a -t httpd_sys_content_t /home/wwwhtml  
+            [root@localhost ~]# semanage fcontext -a -t httpd_sys_content_t /home/wwwhtml/*
+            通过给自定义目录及其下的文件添加安全上下文类型段为网站服务使得其能通过SELinux的检查
+            [root@localhost ~]# restorecon -Rv /home/wwwhtml/   使上下文配置立即生效 -Rv 递归操作
+            
+            此时再次刷新页面即可正常访问了
+            
+            
+个人用户主页功能：
+        httpd服务提供的个人主页
+            
+          
+            
+
+       
+
